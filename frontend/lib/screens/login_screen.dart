@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../services/auth_service.dart';
 import '../utils/locale_text.dart';
 import 'main_screen.dart';
 import 'register_screen.dart';
@@ -13,29 +14,43 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final FocusNode _usernameFocus = FocusNode();
+  final FocusNode _emailFocus = FocusNode();
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
   String? _error;
 
   void _login() async {
     if (!_formKey.currentState!.validate()) return;
+
     setState(() {
       _isLoading = true;
       _error = null;
     });
-    await Future.delayed(const Duration(seconds: 1));
-    if (_usernameController.text == 'user' &&
-        _passwordController.text == 'pass') {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => MainScreen(lang: widget.lang)),
+
+    try {
+      final result = await AuthService.login(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
       );
-    } else {
+
+      if (result['success']) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MainScreen(lang: widget.lang),
+          ),
+        );
+      } else {
+        setState(() {
+          _error = result['message'];
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
       setState(() {
-        _error = appTexts[widget.lang]!['invalid_login'];
+        _error = 'Lỗi kết nối: ${e.toString()}';
         _isLoading = false;
       });
     }
@@ -46,7 +61,7 @@ class _LoginScreenState extends State<LoginScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        FocusScope.of(context).requestFocus(_usernameFocus);
+        FocusScope.of(context).requestFocus(_emailFocus);
       }
     });
   }
@@ -74,17 +89,24 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 32),
                 TextFormField(
-                  controller: _usernameController,
-                  focusNode: _usernameFocus,
-                  decoration: InputDecoration(
-                    labelText: appTexts[lang]!['username'],
+                  controller: _emailController,
+                  focusNode: _emailFocus,
+                  keyboardType: TextInputType.emailAddress,
+                  decoration: const InputDecoration(
+                    labelText: 'Email',
                     filled: true,
                     fillColor: Colors.white,
-                    border: const OutlineInputBorder(),
+                    border: OutlineInputBorder(),
                   ),
-                  validator: (v) => v == null || v.isEmpty
-                      ? appTexts[lang]!['required']
-                      : null,
+                  validator: (v) {
+                    if (v == null || v.isEmpty) {
+                      return appTexts[lang]!['required'];
+                    }
+                    if (!v.contains('@')) {
+                      return 'Email không hợp lệ';
+                    }
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
@@ -102,13 +124,29 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 24),
                 if (_error != null)
-                  Text(_error!, style: const TextStyle(color: Colors.yellow)),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.yellow.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.yellow),
+                    ),
+                    child: Text(
+                      _error!,
+                      style: const TextStyle(
+                        color: Colors.yellow,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                const SizedBox(height: 16),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: _isLoading ? null : _login,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
                     child: _isLoading
                         ? const SizedBox(
@@ -121,7 +159,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           )
                         : Text(
                             appTexts[lang]!['login']!,
-                            style: const TextStyle(color: Colors.red),
+                            style: const TextStyle(
+                              color: Colors.red,
+                              fontSize: 16,
+                            ),
                           ),
                   ),
                 ),
@@ -141,6 +182,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     style: OutlinedButton.styleFrom(
                       backgroundColor: Colors.white,
                       side: const BorderSide(color: Colors.white),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
                     onPressed: () {
                       ScaffoldMessenger.of(
@@ -168,7 +210,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       },
                       child: Text(
                         appTexts[lang]!['register_now']!,
-                        style: const TextStyle(color: Colors.yellow),
+                        style: const TextStyle(
+                          color: Colors.yellow,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ],
