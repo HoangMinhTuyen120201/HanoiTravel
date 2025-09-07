@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../models/locations.dart';
 import '../services/location_service.dart';
 import '../utils/locale_text.dart';
 
@@ -17,8 +18,8 @@ class _HomePageContentState extends State<HomePageContent> {
   late PageController _pageController;
   late Timer _timer;
   int _currentPage = 0;
-  List<dynamic> _featuredLocations = [];
-  List<dynamic> _allLocations = [];
+  List<Location> _featuredLocations = [];
+  List<Location> _allLocations = [];
   bool _isLoading = true;
   String _errorMessage = '';
 
@@ -102,11 +103,13 @@ class _HomePageContentState extends State<HomePageContent> {
     try {
       final allLocationsResult = await LocationService.getAllLocations();
       if (allLocationsResult['success']) {
-        final allData = allLocationsResult['data'] as List;
+        final allData = (allLocationsResult['data'] as List)
+            .map((e) => Location.fromJson(e))
+            .toList();
         setState(() {
           _allLocations = allData;
           _featuredLocations = allData
-              .where((location) => location['isFeatured'] == true)
+              .where((location) => location.isFeatured == true)
               .toList();
           if (_featuredLocations.isEmpty) {
             _featuredLocations = allData.toList();
@@ -240,7 +243,7 @@ class _HomePageContentState extends State<HomePageContent> {
                   child: Stack(
                     children: [
                       Image.network(
-                        location['image'],
+                        location.image,
                         width: double.infinity,
                         height: double.infinity,
                         fit: BoxFit.cover,
@@ -281,9 +284,7 @@ class _HomePageContentState extends State<HomePageContent> {
                         left: 16,
                         right: 16,
                         child: Text(
-                          widget.lang == 'vi'
-                              ? location['name'] ?? ''
-                              : location['nameEn'] ?? '',
+                          widget.lang == 'vi' ? location.name : location.nameEn,
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 18,
@@ -399,7 +400,7 @@ class _HomePageContentState extends State<HomePageContent> {
                     child: Stack(
                       children: [
                         Image.network(
-                          location['image'],
+                          location.image,
                           width: double.infinity,
                           height: double.infinity,
                           fit: BoxFit.cover,
@@ -441,8 +442,8 @@ class _HomePageContentState extends State<HomePageContent> {
                           right: 8,
                           child: Text(
                             widget.lang == 'vi'
-                                ? location['name'] ?? ''
-                                : location['nameEn'] ?? '',
+                                ? location.name
+                                : location.nameEn,
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 12,
