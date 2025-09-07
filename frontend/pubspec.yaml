@@ -73,6 +73,10 @@ flutter:
     - assets/flagVN.png
     - assets/flagEN.png
     - assets/bannerHN.png
+    - assets/location_baotanghanoi.png
+    - assets/location_chuamotcot.jpg
+    - assets/location_hoangthanh.jpg
+    - assets/location_vanmieu.jpg
 
   # To add assets to your application, add an assets section, like this:
   # assets:
