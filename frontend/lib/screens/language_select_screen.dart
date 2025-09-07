@@ -96,6 +96,7 @@ class _LangButton extends StatelessWidget {
   final Color borderColor;
   final Color textColor;
   final VoidCallback onTap;
+
   const _LangButton({
     required this.width,
     required this.asset,
@@ -111,7 +112,6 @@ class _LangButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: width,
-      height: 90,
       child: Material(
         color: backgroundColor,
         borderRadius: BorderRadius.circular(16),
@@ -119,44 +119,48 @@ class _LangButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           onTap: onTap,
           child: Container(
+            height: 70,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             decoration: BoxDecoration(
               border: Border.all(color: borderColor, width: 2),
               borderRadius: BorderRadius.circular(16),
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 20.0, top: 8.0),
-                  child: Image.asset(asset, width: 40, height: 40),
+                Expanded(
+                  child: Center(
+                    child: Image.asset(asset, width: 28, height: 28),
+                  ),
                 ),
-                const SizedBox(width: 8),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text(
-                      viText,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: textColor,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                Expanded(
+                  flex: 2,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        viText,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: textColor,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      enText,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: textColor.withOpacity(0.7),
-                        fontSize: 15,
+                      const SizedBox(height: 4),
+                      Text(
+                        enText,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: textColor.withOpacity(0.7),
+                          fontSize: 15,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
+                const Expanded(child: SizedBox()),
               ],
             ),
           ),
